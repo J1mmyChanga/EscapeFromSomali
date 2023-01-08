@@ -1,6 +1,6 @@
 import sys
 from settings import *
-from level import Level
+from back.level import Level
 
 
 pygame.init()
