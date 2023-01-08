@@ -39,12 +39,18 @@ class Player(pygame.sprite.Sprite):
         else:
             self.image = pygame.transform.flip(image, True, False)
 
-        if self.on_ground:
+        if self.on_ground and self.on_right:
+            self.rect = self.image.get_rect(bottomright = self.rect.bottomright)
+        elif self.on_ground and self.on_left:
+            self.rect = self.image.get_rect(bottomleft = self.rect.bottomleft)
+        elif self.on_ground:
             self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
+        elif self.on_ceiling and self.on_right:
+            self.rect = self.image.get_rect(topright = self.rect.topright)
+        elif self.on_ceiling and self.on_left:
+            self.rect = self.image.get_rect(topleft = self.rect.topleft)
         elif self.on_ceiling:
             self.rect = self.image.get_rect(midtop = self.rect.midtop)
-        else:
-            self.rect = self.image.get_rect(center = self.rect.center)
 
 
     def movement(self):
@@ -60,7 +66,6 @@ class Player(pygame.sprite.Sprite):
             self.direction.x = 0
         if keys[pygame.K_SPACE] and self.on_ground:
             self.jump()
-            self.on_ground = False
 
     def get_status(self):
         if self.direction.y < 0:
@@ -68,10 +73,9 @@ class Player(pygame.sprite.Sprite):
         elif self.direction.y > 1:
             self.status = 'fall'
         else:
-            if self.direction != 0:
-                self.status = 'running'
-            else:
-                self.status = 'idle'
+            # if self.direction != 0:
+            #     self.status = 'run'
+            self.status = 'idle'
 
     def apply_gravity(self):
         self.direction.y += self.gravity
@@ -82,5 +86,5 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.movement()
-        # self.get_status()
+        self.get_status()
         self.animate()
