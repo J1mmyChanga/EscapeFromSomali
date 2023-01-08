@@ -21,7 +21,7 @@ class Level:
                 elif col == 'P':
                     player = Player((x, y), self.player)
 
-    def scroll_x(self):
+    def camera_movement(self):
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
@@ -36,11 +36,37 @@ class Level:
             self.world_shift = 0
             player.speed = 8
 
+    def horizontal_collision(self):
+        player = self.player.sprite
+        player.rect.x += player.direction.x * player.speed
+
+        for sprite in self.tiles.sprites():
+            if sprite.rect.colliderect(player.rect):
+                if player.direction.x < 0:
+                    player.rect.left = sprite.rect.right
+                elif player.direction.x > 0:
+                    player.rect.right = sprite.rect.left
+
+    def vertical_collision(self):
+        player = self.player.sprite
+        player.apply_gravity()
+
+        for sprite in self.tiles.sprites():
+            if sprite.rect.colliderect(player.rect):
+                if player.direction.y < 0:
+                    player.rect.top = sprite.rect.bottom
+                    player.direction.y = 0
+                elif player.direction.y > 0:
+                    player.rect.bottom = sprite.rect.top
+                    player.direction.y = 0
+                    player.on_ground = True
 
     def run(self):
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
+        self.camera_movement()
 
         self.player.update()
+        self.horizontal_collision()
+        self.vertical_collision()
         self.player.draw(self.display_surface)
-        self.scroll_x()
