@@ -59,6 +59,7 @@ class Level:
                 elif player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0
+                    player.on_ground = True
 
     def run(self):
         self.tiles.update(self.world_shift)
