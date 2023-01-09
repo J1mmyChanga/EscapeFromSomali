@@ -3,28 +3,18 @@ from settings import all_sprites
 from support import import_folder
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group, surface, create_jump_particles):
+    def __init__(self, pos, group):
         super().__init__(all_sprites, group)
         self.import_character_images()
         self.frame_index = 0
-        self.animation_speed = 0.15
-        self.surface = surface
+        self.animation_speed = 0.12
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
 
-        #частицы пыли
-        self.import_dust_run_particles()
-        self.dust_frame_index = 0
-        self.dust_animation_speed = 0.15
-        self.create_jump_particles = create_jump_particles
-
-        #движение игрока
         self.direction = pygame.math.Vector2(0, 0)
         self.gravity = 0.8
         self.jump_speed = -16
         self.speed = 8
-
-        #статусы игрока
         self.on_ground = False
         self.on_ceiling = False
         self.on_left = False
@@ -38,20 +28,6 @@ class Player(pygame.sprite.Sprite):
         for animation in self.animations.keys():
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
-
-    def import_dust_run_particles(self):
-        self.run_particles = import_folder('./front/dust_particles/run')
-
-    def run_dust_animation(self):
-        if self.status == 'run' and self.on_ground:
-            self.dust_frame_index = (self.dust_frame_index + self.dust_animation_speed) % len(self.run_particles)
-            dust_particle = self.run_particles[int(self.dust_frame_index)]
-            if self.facing_right:
-                pos = self.rect.bottomleft - pygame.math.Vector2(6, 10)
-                self.surface.blit(dust_particle, pos)
-            else:
-                pos = self.rect.bottomright + pygame.math.Vector2(6, 10)
-                self.surface.blit(pygame.transform.flip(dust_particle, True, False), pos)
 
     def animate(self):
         animation = self.animations[self.status]
@@ -76,6 +52,7 @@ class Player(pygame.sprite.Sprite):
         elif self.on_ceiling:
             self.rect = self.image.get_rect(midtop = self.rect.midtop)
 
+
     def movement(self):
         keys = pygame.key.get_pressed()
 
@@ -89,7 +66,6 @@ class Player(pygame.sprite.Sprite):
             self.direction.x = 0
         if keys[pygame.K_SPACE] and self.on_ground:
             self.jump()
-            self.create_jump_particles(self.rect.midbottom)
 
     def get_status(self):
         if self.direction.y < 0:
@@ -97,10 +73,9 @@ class Player(pygame.sprite.Sprite):
         elif self.direction.y > self.gravity:  #при вызове этой функции в vert_col dir.y будет всегда равна гравитации,
             self.status = 'fall'               #т.к. в vert_col dir.y обнуляется, а затем к ней добавляется гравитация
         else:                                  #и все это добавляется к положению игрока но затем снова проверяется на столкновение
-            if self.direction != 0:            #и bottom игрока становится равно top спрайта с которым произошло стокновение
-                self.status = 'run'
-            else:
-                self.status = 'idle'
+            # if self.direction != 0:          #и bottom игрока становится равно top спрайта с которым произошло стокновение
+            #     self.status = 'run'
+            self.status = 'idle'
 
     def apply_gravity(self):
         self.direction.y += self.gravity
@@ -113,4 +88,3 @@ class Player(pygame.sprite.Sprite):
         self.movement()     #проверка на нажатые клавиши
         self.get_status()   #получение состояния игрока
         self.animate()      #анимация игрока в соответствии со статусом
-        self.run_dust_animation()    #запуск анимации частиц пыли
