@@ -7,10 +7,10 @@ from player import Player
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
-        self.setup_level(level_data)
         self.world_shift = 0
+        self.setup_level(level_data)
 
-    def setup_level(self, layout):
+    def setup_level(self, layout):                  #создание тайлов и игрока(отрисовка в классах)
         self.tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
         self.current_x = 0
@@ -22,7 +22,7 @@ class Level:
                 elif col == 'P':
                     player = Player((x, y), self.player)
 
-    def camera_movement(self):
+    def camera_movement(self):                     #камера(двигается левел при достижении игроком краев экрана)
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
@@ -46,7 +46,7 @@ class Level:
                 if player.direction.x < 0:
                     player.rect.left = sprite.rect.right
                     player.on_left = True
-                    self.current_x = player.rect.left
+                    self.current_x = player.rect.left  #запоминаем координату при столкновении
                 elif player.direction.x > 0:
                     player.rect.right = sprite.rect.left
                     player.on_right = True
@@ -70,17 +70,17 @@ class Level:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.on_ground = True
-        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+        if player.on_ground and player.direction.y < 0 or player.direction.y > player.gravity:   #переопределениее флага "на земле" если чел в воздухе
             player.on_ground = False
         if player.on_ceiling and player.direction.y > 0:
             player.on_ceiling = False
 
     def run(self):
-        self.tiles.update(self.world_shift)
-        self.tiles.draw(self.display_surface)
-        self.camera_movement()
+        self.camera_movement()                       #движение камеры(переопределение скорости движения игрока и уровня)
+        self.tiles.update(self.world_shift)          #смещение уровня по вышепереопределенным переменным
+        self.tiles.draw(self.display_surface)        #отрисовка
 
-        self.player.update()
-        self.horizontal_collision()
+        self.player.update()                         #метод игрока
+        self.horizontal_collision()                  #проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
         self.vertical_collision()
-        self.player.draw(self.display_surface)
+        self.player.draw(self.display_surface)       #отрисовка

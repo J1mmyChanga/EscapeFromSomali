@@ -70,10 +70,10 @@ class Player(pygame.sprite.Sprite):
     def get_status(self):
         if self.direction.y < 0:
             self.status = 'jump'
-        elif self.direction.y > 1:
-            self.status = 'fall'
-        else:
-            # if self.direction != 0:
+        elif self.direction.y > self.gravity:  #при вызове этой функции в vert_col dir.y будет всегда равна гравитации,
+            self.status = 'fall'               #т.к. в vert_col dir.y обнуляется, а затем к ней добавляется гравитация
+        else:                                  #и все это добавляется к положению игрока но затем снова проверяется на столкновение
+            # if self.direction != 0:          #и bottom игрока становится равно top спрайта с которым произошло стокновение
             #     self.status = 'run'
             self.status = 'idle'
 
@@ -85,6 +85,6 @@ class Player(pygame.sprite.Sprite):
         self.direction.y = self.jump_speed
 
     def update(self):
-        self.movement()
-        self.get_status()
-        self.animate()
+        self.movement()     #проверка на нажатые клавиши
+        self.get_status()   #получение состояния игрока
+        self.animate()      #анимация игрока в соответствии со статусом
