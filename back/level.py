@@ -1,6 +1,6 @@
 import pygame
-from tiles import Tile, StaticTile
-from settings import tile_size, all_sprites, screen_width
+from tiles import StaticTile, Crate
+from settings import tile_size, screen_width
 from player import Player
 from particle import ParticleEffect
 from support import import_csv_layout, import_cut_tiles
@@ -15,12 +15,22 @@ class Level:
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
 
+        # игрок
         player_layout = import_csv_layout(level_data['player'])
         self.player = pygame.sprite.GroupSingle()
         self.spawn_player(player_layout)
 
+        # земля
         ground_layout = import_csv_layout(level_data['ground'])
         self.ground_sprites = self.create_tile_group(ground_layout, 'ground')
+
+        # трава
+        grass_layout = import_csv_layout(level_data['grass'])
+        self.grass_sprites = self.create_tile_group(grass_layout, 'grass')
+
+        # ящики
+        crates_layout = import_csv_layout(level_data['crates'])
+        self.crates_sprites = self.create_tile_group(crates_layout, 'crates')
 
 
     def create_tile_group(self, layout, type):
@@ -34,7 +44,14 @@ class Level:
                         ground_tile_list = import_cut_tiles('./front/ground/ground_tiles.png')
                         tile_surface = ground_tile_list[int(id)]
                         tile = StaticTile((x, y), tile_size, tile_surface)
-                        tiles_sprite_group.add(tile)
+                    if type == 'grass':
+                        grass_tile_list = import_cut_tiles('./front/background/grass/grass.png')
+                        tile_surface = grass_tile_list[int(id)]
+                        tile = StaticTile((x, y), tile_size, tile_surface)
+                    if type == 'crates':
+                        tile = Crate((x, y), tile_size)
+
+                    tiles_sprite_group.add(tile)
 
         return tiles_sprite_group
 
@@ -88,7 +105,7 @@ class Level:
     def horizontal_collision(self):
         player = self.player.sprite
         player.rect.x += player.direction.x * player.speed
-        collidable_sprites = self.ground_sprites.sprites()
+        collidable_sprites = self.ground_sprites.sprites() + self.crates_sprites.sprites()
 
         for sprite in collidable_sprites:
             if sprite.rect.colliderect(player.rect):
@@ -108,7 +125,7 @@ class Level:
     def vertical_collision(self):
         player = self.player.sprite
         player.apply_gravity()
-        collidable_sprites = self.ground_sprites.sprites()
+        collidable_sprites = self.ground_sprites.sprites() + self.crates_sprites.sprites()
 
         for sprite in collidable_sprites:
             if sprite.rect.colliderect(player.rect):
@@ -126,15 +143,25 @@ class Level:
             player.on_ceiling = False
 
     def run(self):
-        self.dust_sprite.update(self.world_shift)
-        self.dust_sprite.draw(self.display_surface)
+        self.camera_movement()  # движение камеры(переопределение скорости движения игрока и уровня
 
-        self.camera_movement()                       #движение камеры(переопределение скорости движения игрока и уровня
+        # земля
         self.ground_sprites.draw(self.display_surface)
         self.ground_sprites.update(self.world_shift)
 
+        # ящики
+        self.crates_sprites.draw(self.display_surface)
+        self.crates_sprites.update(self.world_shift)
+
+        # трава
+        self.grass_sprites.draw(self.display_surface)
+        self.grass_sprites.update(self.world_shift)
+
         self.player.update()
         self.player.draw(self.display_surface)
+
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
 
         self.horizontal_collision()
         self.get_player_sprite_on_ground()

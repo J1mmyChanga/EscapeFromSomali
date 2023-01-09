@@ -7,6 +7,8 @@ from all_levels import level_1
 def main():
     pygame.init()
     screen = pygame.display.set_mode(size)
+    pygame.display.set_caption('Escape from Somali')
+    pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
     level = Level(level_1, screen)
     running = True
@@ -16,7 +18,7 @@ def main():
         sys.exit()
 
     while running:
-        screen.fill((0, 0, 0))
+        screen.fill('grey')
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
