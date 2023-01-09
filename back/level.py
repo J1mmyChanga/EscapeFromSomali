@@ -1,28 +1,35 @@
 import pygame
-from tiles import Tile
+from tiles import Tile, StaticTile
 from settings import tile_size, all_sprites, screen_width
 from player import Player
+from support import import_csv_layout, import_cut_tiles
 
 
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
-        self.world_shift = 0
-        self.setup_level(level_data)
+        self.world_shift = -5
 
-    def setup_level(self, layout):                  #создание тайлов и игрока(отрисовка в классах)
-        self.tiles = pygame.sprite.Group()
-        self.player = pygame.sprite.GroupSingle()
-        self.current_x = 0
+        ground_layout = import_csv_layout(level_data['ground'])
+        self.ground_sprites = self.create_tile_group(ground_layout, 'ground')
+
+    def create_tile_group(self, layout, type):
+        tiles_sprite_group = pygame.sprite.Group()
         for row_index, row in enumerate(layout):
-            for col_index, col in enumerate(row):
-                x, y = col_index * tile_size, row_index * tile_size
-                if col == '#':
-                    tile = Tile((x, y), tile_size, self.tiles)
-                elif col == 'P':
-                    player = Player((x, y), self.player)
+            for col_index, id in enumerate(row):
+                if id != '-1':
+                    x = col_index * tile_size
+                    y = row_index * tile_size
+                    if type == 'ground':
+                        ground_tile_list = import_cut_tiles('./front/ground/ground_tiles.png')
+                        tile_surface = ground_tile_list[int(id)]
+                        tile = StaticTile((x, y), tile_size, tile_surface)
+                        tiles_sprite_group.add(tile)
 
-    def camera_movement(self):                     #камера(двигается левел при достижении игроком краев экрана)
+        return tiles_sprite_group
+
+
+    '''def camera_movement(self):                     #камера(двигается левел при достижении игроком краев экрана)
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
@@ -35,7 +42,7 @@ class Level:
             player.speed = 0
         else:
             self.world_shift = 0
-            player.speed = 8
+            player.speed = 8'''
 
     def horizontal_collision(self):
         player = self.player.sprite
@@ -76,11 +83,12 @@ class Level:
             player.on_ceiling = False
 
     def run(self):
-        self.camera_movement()                       #движение камеры(переопределение скорости движения игрока и уровня)
-        self.tiles.update(self.world_shift)          #смещение уровня по вышепереопределенным переменным
-        self.tiles.draw(self.display_surface)        #отрисовка
+        #self.camera_movement()                          #движение камеры(переопределение скорости движения игрока и уровня)
+        #self.tiles.update(self.world_shift)            #смещение уровня по вышепереопределенным переменным
+        self.ground_sprites.draw(self.display_surface)  #отрисовка
+        self.ground_sprites.update(self.world_shift)                    #отрисовка
 
-        self.player.update()                         #метод игрока
-        self.horizontal_collision()                  #проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
-        self.vertical_collision()
-        self.player.draw(self.display_surface)       #отрисовка
+        #self.player.update()                           #метод игрока
+        #self.horizontal_collision()                    #проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
+        #self.vertical_collision()
+        #self.player.draw(self.display_surface)         #отрисовка
