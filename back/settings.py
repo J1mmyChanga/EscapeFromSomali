@@ -1,17 +1,9 @@
 import pygame
 
-level_map = [
-    '...........................',
-    '...........................',
-    '...........................',
-    '##........................#',
-    '##.........................',
-    '####.........##..........##',
-    '###........##.......#...##.',
-    '##..P#..####....#####...##.',
-    '....##..####.....###...###.',
-    '#..###..######...####...###',
-    '##.###..######...###....###',]
+height_tile_amount = 14
 tile_size = 64
-size = screen_width, screen_height = 1200, len(level_map) * tile_size
+
+screen_height = height_tile_amount * tile_size
+screen_width = 1400
+size = (screen_width, screen_height)
 all_sprites = pygame.sprite.Group()
