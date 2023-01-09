@@ -2,8 +2,8 @@ from settings import *
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, pos, size):
-        super().__init__()
+    def __init__(self, pos, size, group):
+        super().__init__(group)
         self.image = pygame.Surface((size, size))
         self.rect = self.image.get_rect(topleft = pos)
 
