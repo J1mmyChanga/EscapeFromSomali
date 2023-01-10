@@ -8,7 +8,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.import_character_images()
         self.frame_index = 0
-        self.animation_speed = 0.125
+        self.animation_speed = 0.15
         self.surface = surface
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)

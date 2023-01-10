@@ -66,9 +66,9 @@ class Level:
 
     def create_jump_particles(self, pos):
         if self.player.sprite.facing_right:
-            pos -= pygame.math.Vector2(10, 5)
+            pos -= pygame.math.Vector2(0, 12)
         else:
-            pos += pygame.math.Vector2(10, -5)
+            pos += pygame.math.Vector2(0, -12)
         jump_particle_sprite = ParticleEffect(pos, 'jump')
         self.dust_sprite.add(jump_particle_sprite)
 
@@ -81,9 +81,9 @@ class Level:
     def create_landing_dust(self):
         if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
             if self.player.sprite.facing_right:
-                offset = pygame.math.Vector2(0, 15)
+                offset = pygame.math.Vector2(0, 20)
             else:
-                offset = pygame.math.Vector2(0, 15)
+                offset = pygame.math.Vector2(0, 20)
             fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, 'land')
             self.dust_sprite.add(fall_dust_particle)
 
@@ -167,4 +167,3 @@ class Level:
         self.get_player_sprite_on_ground()
         self.vertical_collision()  # проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
         self.create_landing_dust()
-        self.player.draw(self.display_surface)       #отрисовка
