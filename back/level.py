@@ -41,11 +41,11 @@ class Level:
                     x = col_index * tile_size
                     y = row_index * tile_size
                     if type == 'ground':
-                        ground_tile_list = import_cut_tiles('./front/ground/ground_tiles.png')
+                        ground_tile_list = import_cut_tiles('../front/ground/ground_tiles.png')
                         tile_surface = ground_tile_list[int(id)]
                         tile = StaticTile((x, y), tile_size, tile_surface)
                     if type == 'grass':
-                        grass_tile_list = import_cut_tiles('./front/background/grass/grass.png')
+                        grass_tile_list = import_cut_tiles('../front/background/grass/grass.png')
                         tile_surface = grass_tile_list[int(id)]
                         tile = StaticTile((x, y), tile_size, tile_surface)
                     if type == 'crates':

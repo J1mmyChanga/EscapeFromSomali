@@ -31,14 +31,14 @@ class Player(pygame.sprite.Sprite):
         self.facing_right = True
 
     def import_character_images(self):
-        character_path = './front/character/'
+        character_path = '../front/character/'
         self.animations = {'idle':[], 'run':[], 'jump':[], 'fall':[]}
         for animation in self.animations.keys():
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
 
     def import_dust_run_particles(self):
-        self.run_particles = import_folder('./front/dust_particles/run')
+        self.run_particles = import_folder('../front/dust_particles/run')
 
     def run_dust_animation(self):
         if self.status == 'run' and self.on_ground:
