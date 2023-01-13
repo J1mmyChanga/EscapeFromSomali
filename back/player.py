@@ -4,14 +4,14 @@ from support import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface, create_jump_particles):
+    def __init__(self, x, y, surface, create_jump_particles):
         super().__init__()
         self.import_character_images()
         self.frame_index = 0
         self.animation_speed = 0.15
         self.surface = surface
         self.image = self.animations['idle'][self.frame_index]
-        self.rect = self.image.get_rect(topleft = pos)
+        self.rect = self.image.get_rect(topleft = (x, y))
 
         # частицы пыли
         self.import_dust_run_particles()

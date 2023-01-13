@@ -1,5 +1,5 @@
 import pygame
-from tiles import StaticTile, Crate
+from tiles import StaticTile, Crate, Palm
 from settings import tile_size, screen_width
 from player import Player
 from particle import ParticleEffect
@@ -32,6 +32,14 @@ class Level:
         crates_layout = import_csv_layout(level_data['crates'])
         self.crates_sprites = self.create_tile_group(crates_layout, 'crates')
 
+        # пальмы переднего фона
+        fg_palm_layout = import_csv_layout(level_data['foreground palms'])
+        self.fg_palm_sprites = self.create_tile_group(fg_palm_layout, 'foreground palms')
+
+        # пальмы заднего фона
+        bg_palm_layout = import_csv_layout(level_data['background palms'])
+        self.bg_palm_sprites = self.create_tile_group(bg_palm_layout, 'background palms')
+
 
     def create_tile_group(self, layout, type):
         tiles_sprite_group = pygame.sprite.Group()
@@ -43,13 +51,20 @@ class Level:
                     if type == 'ground':
                         ground_tile_list = import_cut_tiles('../front/ground/ground_tiles.png')
                         tile_surface = ground_tile_list[int(id)]
-                        tile = StaticTile((x, y), tile_size, tile_surface)
+                        tile = StaticTile(x, y, tile_size, tile_surface)
                     if type == 'grass':
                         grass_tile_list = import_cut_tiles('../front/background/grass/grass.png')
                         tile_surface = grass_tile_list[int(id)]
-                        tile = StaticTile((x, y), tile_size, tile_surface)
+                        tile = StaticTile(x, y, tile_size, tile_surface)
                     if type == 'crates':
-                        tile = Crate((x, y), tile_size)
+                        tile = Crate(x, y, tile_size)
+                    if type == 'foreground palms':
+                        if id == '0':
+                            tile = Palm(x, y, tile_size, '../front/ground/palm_large', 72)
+                        if id == '1':
+                            tile = Palm(x, y, tile_size, '../front/ground/palm_small', 38)
+                    if type == 'background palms':
+                        tile = Palm(x, y, tile_size, '../front/ground/bg_palm', 64)
 
                     tiles_sprite_group.add(tile)
 
@@ -61,14 +76,11 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if id == '0':
-                    sprite = Player((x, y), self.display_surface, self.create_jump_particles)
+                    sprite = Player(x, y, self.display_surface, self.create_jump_particles)
                     self.player.add(sprite)
 
     def create_jump_particles(self, pos):
-        if self.player.sprite.facing_right:
-            pos -= pygame.math.Vector2(0, 12)
-        else:
-            pos += pygame.math.Vector2(0, -12)
+        pos -= pygame.math.Vector2(0, 15)
         jump_particle_sprite = ParticleEffect(pos, 'jump')
         self.dust_sprite.add(jump_particle_sprite)
 
@@ -105,45 +117,50 @@ class Level:
     def horizontal_collision(self):
         player = self.player.sprite
         player.rect.x += player.direction.x * player.speed
-        collidable_sprites = self.ground_sprites.sprites() + self.crates_sprites.sprites()
-
+        collidable_sprites = self.ground_sprites.sprites() + self.crates_sprites.sprites() + self.fg_palm_sprites.sprites()
         for sprite in collidable_sprites:
             if sprite.rect.colliderect(player.rect):
                 if player.direction.x < 0:
                     player.rect.left = sprite.rect.right
                     player.on_left = True
-                    self.current_x = player.rect.left  #запоминаем координату при столкновении
+                    self.current_x = player.rect.left
                 elif player.direction.x > 0:
                     player.rect.right = sprite.rect.left
                     player.on_right = True
                     self.current_x = player.rect.right
+
         if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0):
             player.on_left = False
-        elif player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
+        if player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
             player.on_right = False
 
     def vertical_collision(self):
         player = self.player.sprite
         player.apply_gravity()
-        collidable_sprites = self.ground_sprites.sprites() + self.crates_sprites.sprites()
+        collidable_sprites = self.ground_sprites.sprites() + self.crates_sprites.sprites() + self.fg_palm_sprites.sprites()
 
         for sprite in collidable_sprites:
             if sprite.rect.colliderect(player.rect):
-                if player.direction.y < 0:
-                    player.rect.top = sprite.rect.bottom
-                    player.direction.y = 0
-                    player.on_ceiling = True
-                elif player.direction.y > 0:
+                if player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.on_ground = True
-        if player.on_ground and player.direction.y < 0 or player.direction.y > player.gravity:   #переопределениее флага "на земле" если чел в воздухе
+                elif player.direction.y < 0:
+                    player.rect.top = sprite.rect.bottom
+                    player.direction.y = 0
+                    player.on_ceiling = True
+
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
             player.on_ground = False
-        if player.on_ceiling and player.direction.y > 0:
+        if player.on_ceiling and player.direction.y > 0.1:
             player.on_ceiling = False
 
     def run(self):
         self.camera_movement()  # движение камеры(переопределение скорости движения игрока и уровня
+
+        # пальмы заднего фона
+        self.bg_palm_sprites.update(self.world_shift)
+        self.bg_palm_sprites.draw(self.display_surface)
 
         # земля
         self.ground_sprites.draw(self.display_surface)
@@ -157,6 +174,10 @@ class Level:
         self.grass_sprites.draw(self.display_surface)
         self.grass_sprites.update(self.world_shift)
 
+        # пальмы переднего фона
+        self.fg_palm_sprites.update(self.world_shift)
+        self.fg_palm_sprites.draw(self.display_surface)
+
         self.player.update()
         self.player.draw(self.display_surface)
 
@@ -164,6 +185,6 @@ class Level:
         self.dust_sprite.draw(self.display_surface)
 
         self.horizontal_collision()
-        self.get_player_sprite_on_ground()
         self.vertical_collision()  # проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
+        self.get_player_sprite_on_ground()
         self.create_landing_dust()

@@ -2,6 +2,7 @@ import pygame
 from support import import_folder
 from settings import all_sprites
 
+
 class ParticleEffect(pygame.sprite.Sprite):
     def __init__(self, pos, type):
         super().__init__(all_sprites)
