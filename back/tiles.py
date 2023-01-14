@@ -1,5 +1,5 @@
 from settings import *
-from support import import_folder
+from support import import_folder, load_image
 
 
 class Tile(pygame.sprite.Sprite):
@@ -20,7 +20,7 @@ class StaticTile(Tile):
 
 class Crate(StaticTile):
     def __init__(self, x, y, size):
-        super().__init__(x, y, size, pygame.image.load('../front/ground/crate.png').convert_alpha())
+        super().__init__(x, y, size, load_image('../front/ground/crate.png'))
         offset_y = y + size
         self.rect = self.image.get_rect(bottomleft=(x, offset_y))
 

@@ -1,9 +1,10 @@
 import pygame
 from tiles import StaticTile, Crate, Palm
-from settings import tile_size, screen_width
+from settings import tile_size, screen_width, screen_height
 from player import Player
 from particle import ParticleEffect
 from support import import_csv_layout, import_cut_tiles
+from background import Sky, Clouds, Water
 
 
 class Level:
@@ -40,6 +41,11 @@ class Level:
         bg_palm_layout = import_csv_layout(level_data['background palms'])
         self.bg_palm_sprites = self.create_tile_group(bg_palm_layout, 'background palms')
 
+        # задний фон
+        level_width = len(ground_layout[0]) * tile_size
+        self.sky = Sky(9)
+        self.clouds = Clouds(level_width, 500, 25)
+        self.water = Water(level_width, screen_height - 40)
 
     def create_tile_group(self, layout, type):
         tiles_sprite_group = pygame.sprite.Group()
@@ -158,6 +164,10 @@ class Level:
     def run(self):
         self.camera_movement()  # движение камеры(переопределение скорости движения игрока и уровня
 
+        # задний фон
+        self.sky.draw(self.display_surface)
+        self.clouds.draw(self.display_surface, self.world_shift)
+
         # пальмы заднего фона
         self.bg_palm_sprites.update(self.world_shift)
         self.bg_palm_sprites.draw(self.display_surface)
@@ -177,6 +187,9 @@ class Level:
         # пальмы переднего фона
         self.fg_palm_sprites.update(self.world_shift)
         self.fg_palm_sprites.draw(self.display_surface)
+
+        # вода
+        self.water.draw(self.display_surface, self.world_shift)
 
         self.player.update()
         self.player.draw(self.display_surface)
