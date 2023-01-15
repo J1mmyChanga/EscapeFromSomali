@@ -192,12 +192,11 @@ class Level:
         self.water.draw(self.display_surface, self.world_shift)
 
         self.player.update()
+        self.horizontal_collision() # проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
+        self.get_player_sprite_on_ground()
+        self.vertical_collision()
+        self.create_landing_dust()
         self.player.draw(self.display_surface)
 
         self.dust_sprite.update(self.world_shift)
         self.dust_sprite.draw(self.display_surface)
-
-        self.horizontal_collision()
-        self.vertical_collision()  # проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
-        self.get_player_sprite_on_ground()
-        self.create_landing_dust()
