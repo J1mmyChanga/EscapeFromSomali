@@ -40,18 +40,6 @@ class Player(pygame.sprite.Sprite):
     def import_dust_run_particles(self):
         self.run_particles = import_folder('../front/dust_particles/run')
 
-    def run_dust_animation(self):
-        if self.status == 'run' and self.on_ground:
-            self.dust_frame_index = (self.dust_frame_index + self.dust_animation_speed) % len(
-                self.run_particles)
-            dust_particle = self.run_particles[int(self.dust_frame_index)]
-            if self.facing_right:
-                pos = self.rect.bottomleft - pygame.math.Vector2(6, 10)
-                self.surface.blit(dust_particle, pos)
-            else:
-                pos = self.rect.bottomright - pygame.math.Vector2(6, 10)
-                self.surface.blit(pygame.transform.flip(dust_particle, True, False), pos)
-
     def animate(self):
         animation = self.animations[self.status]
         self.frame_index = (self.frame_index + self.animation_speed) % len(animation)
@@ -63,8 +51,8 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(image, True, False)
 
         if self.on_ground and self.on_right:
-            self.rect = self.image.get_rect(bottomright = self.rect.bottomright)
-        elif self.on_ground and self.on_left:
+            self.rect = self.image.get_rect(bottomright = self.rect.bottomright)   #невелирование расстояния от персонажа на земле
+        elif self.on_ground and self.on_left:                                      # до персонажа в воздухе
             self.rect = self.image.get_rect(bottomleft = self.rect.bottomleft)
         elif self.on_ground:
             self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
@@ -74,6 +62,18 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(topleft = self.rect.topleft)
         elif self.on_ceiling:
             self.rect = self.image.get_rect(midtop = self.rect.midtop)
+
+    def run_dust_animation(self):
+        if self.status == 'run' and self.on_ground:
+            self.dust_frame_index = (self.dust_frame_index + self.dust_animation_speed) % len(
+                self.run_particles)
+            dust_particle = self.run_particles[int(self.dust_frame_index)]
+            if self.facing_right:
+                pos = self.rect.bottomleft - pygame.math.Vector2(6, 10)
+                self.surface.blit(dust_particle, pos)
+            else:
+                pos = self.rect.bottomright - pygame.math.Vector2(6, 10)
+                self.surface.blit(pygame.transform.flip(dust_particle, True, False), pos)
 
     def movement(self):
         keys = pygame.key.get_pressed()

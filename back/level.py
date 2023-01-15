@@ -43,8 +43,8 @@ class Level:
 
         # задний фон
         level_width = len(ground_layout[0]) * tile_size
-        self.sky = Sky(9)
-        self.clouds = Clouds(level_width, 500, 25)
+        self.sky = Sky(8)
+        self.clouds = Clouds(level_width, 500, 22)
         self.water = Water(level_width, screen_height - 40)
 
     def create_tile_group(self, layout, type):
@@ -85,16 +85,16 @@ class Level:
                     sprite = Player(x, y, self.display_surface, self.create_jump_particles)
                     self.player.add(sprite)
 
-    def create_jump_particles(self, pos):
-        pos -= pygame.math.Vector2(0, 15)
-        jump_particle_sprite = ParticleEffect(pos, 'jump')
-        self.dust_sprite.add(jump_particle_sprite)
-
     def get_player_sprite_on_ground(self):
         if self.player.sprite.on_ground:
             self.player_on_ground = True
         else:
             self.player_on_ground = False
+
+    def create_jump_particles(self, pos):
+        pos -= pygame.math.Vector2(0, 15)
+        jump_particle_sprite = ParticleEffect(pos, 'jump')
+        self.dust_sprite.add(jump_particle_sprite)
 
     def create_landing_dust(self):
         if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
