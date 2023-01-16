@@ -1,5 +1,5 @@
 import pygame
-from tiles import StaticTile, Crate, Palm, Consumables
+from tiles import *
 from settings import tile_size, screen_width, screen_height
 from player import Player
 from particle import ParticleEffect
@@ -25,6 +25,10 @@ class Level:
         ground_layout = import_csv_layout(level_data['ground'])
         self.ground_sprites = self.create_tile_group(ground_layout, 'ground')
 
+        # враги
+        # enemies_layout = import_csv_layout(level_data['enemies'])
+        # self.enemies_sprites = self.create_tile_group(enemy_layout, 'enemies')
+
         # трава
         grass_layout = import_csv_layout(level_data['grass'])
         self.grass_sprites = self.create_tile_group(grass_layout, 'grass')
@@ -37,6 +41,10 @@ class Level:
         consumables_layout = import_csv_layout(level_data['consumables'])
         self.consumables_sprites = self.create_tile_group(consumables_layout, 'consumables')
 
+        # ключевой предмет для перехода на новый уровень
+        key_item_layout = import_csv_layout(level_data['player'])
+        self.key_item_sprite = self.create_tile_group(key_item_layout, 'player')
+
         # пальмы переднего фона
         fg_palm_layout = import_csv_layout(level_data['foreground palms'])
         self.fg_palm_sprites = self.create_tile_group(fg_palm_layout, 'foreground palms')
@@ -44,6 +52,10 @@ class Level:
         # пальмы заднего фона
         bg_palm_layout = import_csv_layout(level_data['background palms'])
         self.bg_palm_sprites = self.create_tile_group(bg_palm_layout, 'background palms')
+
+        # препятствия для врагов
+        # obstacles_layout = import_csv_layout(level_data['obstacles'])
+        # self.obstacles_sprites = self.create_tile_group(obstacles_layout, 'obstacles')
 
         # задний фон
         level_width = len(ground_layout[0]) * tile_size
@@ -80,6 +92,15 @@ class Level:
                             tile = Consumables(x, y, tile_size, '../front/consumables/bananas')
                         if id == '2':
                             tile = Consumables(x, y, tile_size, '../front/consumables/coconuts')
+                    if type == 'player':
+                        if id == '1':
+                            tile = Consumables(x, y, tile_size, '../front/consumables/items/wood')
+                        else:
+                            continue
+                    if type == 'enemies':
+                        tile = Enemy(x, y, tile_size, '../front/enemies/run')
+                    if type == 'obstacles':
+                        tile = Tile(tile_size, x, y)
 
                     tiles_sprite_group.add(tile)
 
@@ -91,8 +112,9 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if id == '0':
-                    sprite = Player(x, y, self.display_surface, self.create_jump_particles)
-                    self.player.add(sprite)
+                    tile = Player(x, y, self.display_surface, self.create_jump_particles)
+                    self.player.add(tile)
+
 
     def get_player_sprite_on_ground(self):
         if self.player.sprite.on_ground:
@@ -170,7 +192,16 @@ class Level:
         if player.on_ceiling and player.direction.y > 0.1:
             player.on_ceiling = False
 
+    # def enemy_collision(self):
+    #     for enemy in self.enemies_sprites.sprites():
+    #         if pygame.sprite.spritecollide(enemy, self.obstacles_sprites, False):
+    #             enemy.reverse()
+
+    def check_level_ending(self):
+        pass
+
     def run(self):
+        self.check_level_ending()
         self.camera_movement()  # движение камеры(переопределение скорости движения игрока и уровня
 
         # задний фон
@@ -182,27 +213,34 @@ class Level:
         self.bg_palm_sprites.draw(self.display_surface)
 
         # земля
-        self.ground_sprites.draw(self.display_surface)
         self.ground_sprites.update(self.world_shift)
+        self.ground_sprites.draw(self.display_surface)
+
+        # враги невидимые препятствия
+        # self.enemies_sprites.update(self.world_shift)
+        # self.obstacles_sprites.update(self.world_shift)
+        # self.enemy_collision()
+        # self.enemies_sprites.draw(self.display_surface)
 
         # ящики
-        self.crates_sprites.draw(self.display_surface)
         self.crates_sprites.update(self.world_shift)
-
-        # трава
-        self.grass_sprites.draw(self.display_surface)
-        self.grass_sprites.update(self.world_shift)
+        self.crates_sprites.draw(self.display_surface)
 
         # фрукты
-        self.consumables_sprites.draw(self.display_surface)
         self.consumables_sprites.update(self.world_shift)
+        self.consumables_sprites.draw(self.display_surface)
+
+        # ключевой предмет для перехода на новый уровень
+        self.key_item_sprite.update(self.world_shift)
+        self.key_item_sprite.draw(self.display_surface)
+
+        # трава
+        self.grass_sprites.update(self.world_shift)
+        self.grass_sprites.draw(self.display_surface)
 
         # пальмы переднего фона
         self.fg_palm_sprites.update(self.world_shift)
         self.fg_palm_sprites.draw(self.display_surface)
-
-        # вода
-        self.water.draw(self.display_surface, self.world_shift)
 
         self.player.update()
         self.horizontal_collision() # проверка на столкновения по вертикали и горизонтали и соответствующее изменение флагов
@@ -210,6 +248,9 @@ class Level:
         self.vertical_collision()
         self.create_landing_dust()
         self.player.draw(self.display_surface)
+
+        # вода
+        self.water.draw(self.display_surface, self.world_shift)
 
         self.dust_sprite.update(self.world_shift)
         self.dust_sprite.draw(self.display_surface)
