@@ -44,7 +44,7 @@ class Level:
         # задний фон
         level_width = len(ground_layout[0]) * tile_size
         self.sky = Sky(8)
-        self.clouds = Clouds(level_width, 500, 22)
+        self.clouds = Clouds(level_width, 300, 25)
         self.water = Water(level_width, screen_height - 40)
 
     def create_tile_group(self, layout, type):
