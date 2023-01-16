@@ -46,3 +46,10 @@ class Palm(AnimatedTile):
         super().__init__(x, y, size, path)
         offset_y = y - offset
         self.rect.topleft = (x, offset_y)
+
+
+class Consumables(AnimatedTile):
+    def __init__(self, x, y, size, path):
+        super().__init__(x, y, size, path)
+        center_x, center_y = x + int(size / 2), y + int(size / 2)
+        self.rect = self.image.get_rect(center=(center_x, center_y))

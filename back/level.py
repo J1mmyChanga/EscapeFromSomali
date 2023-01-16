@@ -1,5 +1,5 @@
 import pygame
-from tiles import StaticTile, Crate, Palm
+from tiles import StaticTile, Crate, Palm, Consumables
 from settings import tile_size, screen_width, screen_height
 from player import Player
 from particle import ParticleEffect
@@ -32,6 +32,10 @@ class Level:
         # ящики
         crates_layout = import_csv_layout(level_data['crates'])
         self.crates_sprites = self.create_tile_group(crates_layout, 'crates')
+
+        # фрукты
+        consumables_layout = import_csv_layout(level_data['consumables'])
+        self.consumables_sprites = self.create_tile_group(consumables_layout, 'consumables')
 
         # пальмы переднего фона
         fg_palm_layout = import_csv_layout(level_data['foreground palms'])
@@ -71,6 +75,11 @@ class Level:
                             tile = Palm(x, y, tile_size, '../front/ground/palm_small', 38)
                     if type == 'background palms':
                         tile = Palm(x, y, tile_size, '../front/ground/bg_palm', 64)
+                    if type == 'consumables':
+                        if id == '0':
+                            tile = Consumables(x, y, tile_size, '../front/consumables/bananas')
+                        if id == '2':
+                            tile = Consumables(x, y, tile_size, '../front/consumables/coconuts')
 
                     tiles_sprite_group.add(tile)
 
@@ -183,6 +192,10 @@ class Level:
         # трава
         self.grass_sprites.draw(self.display_surface)
         self.grass_sprites.update(self.world_shift)
+
+        # фрукты
+        self.consumables_sprites.draw(self.display_surface)
+        self.consumables_sprites.update(self.world_shift)
 
         # пальмы переднего фона
         self.fg_palm_sprites.update(self.world_shift)
