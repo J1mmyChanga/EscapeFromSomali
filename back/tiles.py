@@ -60,12 +60,12 @@ class Enemy(AnimatedTile):
     def __init__(self, x, y, size, path):
         super().__init__(x, y, size, path)
         self.rect.y += size - self.image.get_size()[1]
-        self.speed = randint(3, 5)
+        self.speed = randint(2, 4)
 
     def move(self):
         self.rect.x += self.speed
 
-    def reversed_image(self):
+    def reverse_image(self):
         if self.speed > 0:
             self.image = pygame.transform.flip(self.image, True, False)
 
@@ -76,4 +76,4 @@ class Enemy(AnimatedTile):
         self.rect.x += shift
         self.animate()
         self.move()
-        self.reversed_image()
+        self.reverse_image()

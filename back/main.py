@@ -18,7 +18,6 @@ def main():
         sys.exit()
 
     while running:
-        screen.fill('grey')
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False

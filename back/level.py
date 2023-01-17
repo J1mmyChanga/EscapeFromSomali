@@ -10,6 +10,7 @@ from background import Sky, Clouds, Water
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
+        self.coord_tuples = []
         self.world_shift = 0
 
         # частицы
@@ -26,8 +27,8 @@ class Level:
         self.ground_sprites = self.create_tile_group(ground_layout, 'ground')
 
         # враги
-        # enemies_layout = import_csv_layout(level_data['enemies'])
-        # self.enemies_sprites = self.create_tile_group(enemy_layout, 'enemies')
+        enemies_layout = import_csv_layout(level_data['enemies'])
+        self.enemies_sprites = self.create_tile_group(enemies_layout, 'enemies')
 
         # трава
         grass_layout = import_csv_layout(level_data['grass'])
@@ -54,14 +55,21 @@ class Level:
         self.bg_palm_sprites = self.create_tile_group(bg_palm_layout, 'background palms')
 
         # препятствия для врагов
-        # obstacles_layout = import_csv_layout(level_data['obstacles'])
-        # self.obstacles_sprites = self.create_tile_group(obstacles_layout, 'obstacles')
+        obstacles_layout = import_csv_layout(level_data['obstacles'])
+        self.obstacles_sprites = self.create_tile_group(obstacles_layout, 'obstacles')
 
         # задний фон
         level_width = len(ground_layout[0]) * tile_size
         self.sky = Sky(8)
         self.clouds = Clouds(level_width, 300, 25)
         self.water = Water(level_width, screen_height - 40)
+
+        self.left_edge, self.right_edge = sorted(self.coord_tuples)[0], sorted(self.coord_tuples)[-1]
+        for sprite in self.ground_sprites:
+            if (sprite.rect.x // tile_size, sprite.rect.y // tile_size) == self.left_edge:
+                self.left_edge_tile = sprite
+            elif (sprite.rect.x // tile_size, sprite.rect.y // tile_size) == self.right_edge:
+                self.right_edge_tile = sprite
 
     def create_tile_group(self, layout, type):
         tiles_sprite_group = pygame.sprite.Group()
@@ -74,6 +82,7 @@ class Level:
                         ground_tile_list = import_cut_tiles('../front/ground/ground_tiles.png')
                         tile_surface = ground_tile_list[int(id)]
                         tile = StaticTile(x, y, tile_size, tile_surface)
+                        self.coord_tuples.append((col_index, row_index))
                     if type == 'grass':
                         grass_tile_list = import_cut_tiles('../front/background/grass/grass.png')
                         tile_surface = grass_tile_list[int(id)]
@@ -100,7 +109,7 @@ class Level:
                     if type == 'enemies':
                         tile = Enemy(x, y, tile_size, '../front/enemies/run')
                     if type == 'obstacles':
-                        tile = Tile(tile_size, x, y)
+                        tile = Tile(x, y, tile_size)
 
                     tiles_sprite_group.add(tile)
 
@@ -192,17 +201,21 @@ class Level:
         if player.on_ceiling and player.direction.y > 0.1:
             player.on_ceiling = False
 
-    # def enemy_collision(self):
-    #     for enemy in self.enemies_sprites.sprites():
-    #         if pygame.sprite.spritecollide(enemy, self.obstacles_sprites, False):
-    #             enemy.reverse()
+    def enemy_collision(self):
+        for enemy in self.enemies_sprites.sprites():
+            if pygame.sprite.spritecollide(enemy, self.obstacles_sprites, False):
+                enemy.reverse()
 
     def check_level_ending(self):
-        pass
+        player = self.player.sprite
+        if (self.left_edge_tile.rect.x == tile_size and player.direction.x < 0) or \
+        (self.right_edge_tile.rect.x == screen_width - 2 * tile_size and player.direction.x > 0):
+            self.world_shift = 0
+            player.speed = 8
 
     def run(self):
-        self.check_level_ending()
         self.camera_movement()  # движение камеры(переопределение скорости движения игрока и уровня
+        self.check_level_ending()
 
         # задний фон
         self.sky.draw(self.display_surface)
@@ -216,11 +229,11 @@ class Level:
         self.ground_sprites.update(self.world_shift)
         self.ground_sprites.draw(self.display_surface)
 
-        # враги невидимые препятствия
-        # self.enemies_sprites.update(self.world_shift)
-        # self.obstacles_sprites.update(self.world_shift)
-        # self.enemy_collision()
-        # self.enemies_sprites.draw(self.display_surface)
+        # враги и невидимые препятствия
+        self.enemies_sprites.update(self.world_shift)
+        self.obstacles_sprites.update(self.world_shift)
+        self.enemy_collision()
+        self.enemies_sprites.draw(self.display_surface)
 
         # ящики
         self.crates_sprites.update(self.world_shift)
