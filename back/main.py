@@ -2,6 +2,10 @@ import sys
 from settings import *
 from level import Level
 from all_levels import level_1, level_2
+from ui import UI
+
+
+ITEMS = ['wood', 'oar', 'rope']
 
 
 def main():

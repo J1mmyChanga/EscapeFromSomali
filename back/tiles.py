@@ -54,6 +54,11 @@ class Consumables(AnimatedTile):
         super().__init__(x, y, size, path)
         center_x, center_y = x + int(size / 2), y + int(size / 2)
         self.rect = self.image.get_rect(center=(center_x, center_y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def animate(self):
+        self.frame_index += 0.1
+        self.image = self.frames[int(self.frame_index) % len(self.frames)]
 
 
 class Enemy(AnimatedTile):
