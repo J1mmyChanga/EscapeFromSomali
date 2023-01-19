@@ -1,7 +1,11 @@
 import sys
 from settings import *
 from level import Level
-from all_levels import level_1, level_2, level_3, level_4, level_5
+from all_levels import level_1, level_2
+from ui import UI
+
+
+ITEMS = ['wood', 'oar', 'rope']
 
 
 def main():
@@ -10,7 +14,7 @@ def main():
     pygame.display.set_caption('Escape from Somali')
     pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
-    level = Level(level_1, screen)
+    level = Level(level_2, screen)
     running = True
 
     def terminate():

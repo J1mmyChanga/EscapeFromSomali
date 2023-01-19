@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.surface = surface
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = (x, y))
+        self.mask = pygame.mask.from_surface(self.image)
 
         # частицы пыли
         self.import_dust_run_particles()

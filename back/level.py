@@ -5,6 +5,7 @@ from player import Player
 from particle import ParticleEffect
 from support import import_csv_layout, import_cut_tiles
 from background import Sky, Clouds, Water
+from ui import UI
 
 
 class Level:
@@ -12,6 +13,7 @@ class Level:
         self.display_surface = surface
         self.coord_tuples = []
         self.world_shift = 0
+        self.hp = UI()
 
         # частицы
         self.dust_sprite = pygame.sprite.GroupSingle()
@@ -103,7 +105,11 @@ class Level:
                             tile = Consumables(x, y, tile_size, '../front/consumables/coconuts')
                     if type == 'player':
                         if id == '1':
-                            tile = Consumables(x, y, tile_size, '../front/consumables/items/wood')
+                            tile = Consumables(x, y, tile_size, '../front/consumables/items/oar')
+                        elif id == '2':
+                            tile = Consumables(x, y, tile_size, '../front/consumables/items/rope')
+                        elif id == '3':
+                            tile = Consumables(x, y, tile_size, '../front/consumables/items/oar')
                         else:
                             continue
                     if type == 'enemies':
@@ -123,7 +129,6 @@ class Level:
                 if id == '0':
                     tile = Player(x, y, self.display_surface, self.create_jump_particles)
                     self.player.add(tile)
-
 
     def get_player_sprite_on_ground(self):
         if self.player.sprite.on_ground:
@@ -206,6 +211,11 @@ class Level:
             if pygame.sprite.spritecollide(enemy, self.obstacles_sprites, False):
                 enemy.reverse()
 
+    def check_fruit_collision(self):
+        for sprite in self.consumables_sprites:
+            if pygame.sprite.collide_mask(sprite, self.player.sprite):
+                sprite.kill()
+
     def check_level_ending(self):
         player = self.player.sprite
         if (self.left_edge_tile.rect.x == tile_size and player.direction.x < 0) or \
@@ -215,7 +225,7 @@ class Level:
 
     def run(self):
         self.camera_movement()  # движение камеры(переопределение скорости движения игрока и уровня
-        self.check_level_ending()
+        self.check_level_ending() # проверка на конец лвла
 
         # задний фон
         self.sky.draw(self.display_surface)
@@ -262,8 +272,16 @@ class Level:
         self.create_landing_dust()
         self.player.draw(self.display_surface)
 
+        # проверка на столкновение с фруктами
+        self.check_fruit_collision()
+
         # вода
         self.water.draw(self.display_surface, self.world_shift)
 
+        # частицы
         self.dust_sprite.update(self.world_shift)
         self.dust_sprite.draw(self.display_surface)
+
+        # ui
+        self.hp.update_hp(self.display_surface)
+        self.hp.update_items(self.display_surface)
