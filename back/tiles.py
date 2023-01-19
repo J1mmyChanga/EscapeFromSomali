@@ -55,6 +55,7 @@ class Consumables(AnimatedTile):
         center_x, center_y = x + int(size / 2), y + int(size / 2)
         self.rect = self.image.get_rect(center=(center_x, center_y))
         self.mask = pygame.mask.from_surface(self.image)
+        self.type = path.split('/')[-1]
 
     def animate(self):
         self.frame_index += 0.1

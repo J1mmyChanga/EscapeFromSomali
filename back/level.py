@@ -13,7 +13,7 @@ class Level:
         self.display_surface = surface
         self.coord_tuples = []
         self.world_shift = 0
-        self.hp = UI()
+        self.ui = UI()
 
         # частицы
         self.dust_sprite = pygame.sprite.GroupSingle()
@@ -105,7 +105,7 @@ class Level:
                             tile = Consumables(x, y, tile_size, '../front/consumables/coconuts')
                     if type == 'player':
                         if id == '1':
-                            tile = Consumables(x, y, tile_size, '../front/consumables/items/oar')
+                            tile = Consumables(x, y, tile_size, '../front/consumables/items/wood')
                         elif id == '2':
                             tile = Consumables(x, y, tile_size, '../front/consumables/items/rope')
                         elif id == '3':
@@ -215,6 +215,21 @@ class Level:
         for sprite in self.consumables_sprites:
             if pygame.sprite.collide_mask(sprite, self.player.sprite):
                 sprite.kill()
+                if sprite.type == 'coconuts':
+                    self.ui.cocos += 1
+                elif sprite.type == 'bananas':
+                    pass
+
+    def check_key_items_collision(self):
+        for sprite in self.key_item_sprite:
+            if pygame.sprite.collide_mask(sprite, self.player.sprite):
+                sprite.kill()
+                if sprite.type == 'wood':
+                    self.ui.woods += 1
+                elif sprite.type == 'rope':
+                    self.ui.rope += 1
+                elif sprite.type == 'oar':
+                    self.ui.oar += 1
 
     def check_level_ending(self):
         player = self.player.sprite
@@ -272,8 +287,9 @@ class Level:
         self.create_landing_dust()
         self.player.draw(self.display_surface)
 
-        # проверка на столкновение с фруктами
+        # проверка на столкновение с фруктами и предметами
         self.check_fruit_collision()
+        self.check_key_items_collision()
 
         # вода
         self.water.draw(self.display_surface, self.world_shift)
@@ -283,5 +299,5 @@ class Level:
         self.dust_sprite.draw(self.display_surface)
 
         # ui
-        self.hp.update_hp(self.display_surface)
-        self.hp.update_items(self.display_surface)
+        self.ui.update_hp(self.display_surface)
+        self.ui.update_items(self.display_surface)
