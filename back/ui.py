@@ -77,3 +77,7 @@ class UI():
         surface.blit(text_rope, (x2, y2))
         surface.blit(text_oar, (x3, y3))
         surface.blit(text_cocos, (x4, y4))
+
+    def set_to_def(self):
+        self.amount_of_hp = [0, 0, 0]
+        self.last_dmg = 2

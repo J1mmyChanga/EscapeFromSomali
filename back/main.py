@@ -10,7 +10,10 @@ def main():
     pygame.display.set_caption('Escape from Somali')
     pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
-    level = Level(level_1, screen)
+
+    levels = [level_1, level_2, level_3, level_4, level_5]
+    lev_num = 0
+    level = Level(levels[lev_num], screen)
     running = True
 
     def terminate():
