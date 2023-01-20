@@ -1,4 +1,7 @@
 import sys
+
+import pygame.sprite
+
 from settings import *
 from level import Level
 from all_levels import *
@@ -54,7 +57,7 @@ pygame.display.set_caption('Escape from Somali')
 pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
 game = Game()
-game.create_level(level_5)
+game.create_level(level_1)
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
