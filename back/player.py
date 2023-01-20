@@ -2,6 +2,7 @@ import pygame
 from support import import_folder
 from math import sin
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, surface, create_jump_particles, change_health):
         super().__init__()
@@ -23,6 +24,8 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 0.8
         self.jump_speed = -16
         self.speed = 8
+        self.collision_rect = pygame.Rect(self.rect.topleft, (40, self.rect.height))
+
         self.on_ground = False
         self.on_ceiling = False
         self.on_left = False
@@ -54,8 +57,10 @@ class Player(pygame.sprite.Sprite):
         image = animation[int(self.frame_index)]
         if self.facing_right:
             self.image = image
+            self.rect.bottomleft = self.collision_rect.bottomleft
         else:
             self.image = pygame.transform.flip(image, True, False)
+            self.rect.bottomright = self.collision_rect.bottomright
 
         if self.invincible:
             alpha = self.wave_value()
@@ -69,12 +74,6 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(bottomleft = self.rect.bottomleft)
         elif self.on_ground:
             self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
-        elif self.on_ceiling and self.on_right:
-            self.rect = self.image.get_rect(topright = self.rect.topright)
-        elif self.on_ceiling and self.on_left:
-            self.rect = self.image.get_rect(topleft = self.rect.topleft)
-        elif self.on_ceiling:
-            self.rect = self.image.get_rect(midtop = self.rect.midtop)
 
     def run_dust_animation(self):
         if self.status == 'run' and self.on_ground:
@@ -117,15 +116,25 @@ class Player(pygame.sprite.Sprite):
 
     def apply_gravity(self):
         self.direction.y += self.gravity
-        self.rect.y += self.direction.y
+        self.collision_rect.y += self.direction.y
 
     def jump(self):
         self.direction.y = self.jump_speed
 
-    '''def heal(self):
-        self.amount_of_hp[self.last_dmg] -= 1
-        if self.amount_of_hp[self.last_dmg] >= 2 and self.last_dmg <= 2:
-            self.last_dmg += 1'''
+    def heal(self):
+        if sum(self.amount_of_hp) == 0:
+            pass
+        else:
+            for i in range(len(self.amount_of_hp)):
+                if self.amount_of_hp[i] == 2:
+                    self.amount_of_hp[i] -= 1
+                    self.change_health(-1)
+                    self.last_dmg += 1 % 3
+                    break
+                if self.amount_of_hp[i] == 1:
+                    self.amount_of_hp[i] -= 1
+                    self.change_health(-1)
+                    break
 
     def get_damage(self):
         if not self.invincible:
@@ -133,9 +142,14 @@ class Player(pygame.sprite.Sprite):
             self.invincible = True
             self.hurt_time = pygame.time.get_ticks()
 
-            self.amount_of_hp[self.last_dmg] += 2
-            if self.amount_of_hp[self.last_dmg] >= 2:
-                self.last_dmg -= 1
+            if self.amount_of_hp[self.last_dmg] == 0:
+                self.amount_of_hp[self.last_dmg] += 2
+                if self.amount_of_hp[self.last_dmg] >= 2:
+                    self.last_dmg -= 1 % 3
+            elif self.amount_of_hp[self.last_dmg] == 1:
+                self.amount_of_hp[self.last_dmg] += 1
+                self.amount_of_hp[self.last_dmg - 1] += 1
+                self.last_dmg -= 1 % 3
 
     def invincibility_timer(self):
         if self.invincible:
