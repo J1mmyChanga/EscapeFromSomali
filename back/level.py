@@ -160,7 +160,7 @@ class Level:
         self.coord_tuples = []
         self.world_shift = 0
         self.dead = False
-        self.hp = UI()
+        self.ui = UI()
         self.restart_button = Button((screen_width - 120) // 2, screen_height // 2, '../front/ui/buttons/restart_btn.png')
 
         # частицы
@@ -233,8 +233,9 @@ class Level:
             if pygame.sprite.collide_mask(sprite, self.player.sprite):
                 sprite.kill()
                 if sprite.type == 'coconuts':
-                    self.ui.cocos += 1
+                    self.ui.coconuts += 1
                 elif sprite.type == 'bananas':
+                    #self.player.sprite.heal()
                     pass
 
     def check_key_items_collision(self):
@@ -263,7 +264,6 @@ class Level:
                     enemy.kill()
                 else:
                     self.player.sprite.get_damage()
-
 
     def check_level_ending(self):
         player = self.player.sprite
@@ -330,6 +330,7 @@ class Level:
 
         # проверка на столкновение с фруктами и врагами
         self.check_fruit_collision()
+        self.check_key_items_collision()
         self.check_enemy_collisions()
 
         # вода
@@ -340,5 +341,5 @@ class Level:
         self.dust_sprite.draw(self.display_surface)
 
         # ui
-        self.ui.update_hp(self.display_surface)
+        self.ui.update_hp(self.display_surface, self.player.sprite.amount_of_hp)
         self.ui.update_items(self.display_surface)

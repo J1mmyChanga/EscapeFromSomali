@@ -2,8 +2,6 @@ import sys
 from settings import *
 from level import Level
 from all_levels import *
-from ui import UI
-
 
 ITEMS = ['wood', 'oar', 'rope']
 
@@ -28,6 +26,7 @@ class Game:
     def run(self):
         self.level.run()
         self.check_game_over()
+
 
 pygame.init()
 screen = pygame.display.set_mode(size)

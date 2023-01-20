@@ -31,6 +31,8 @@ class Player(pygame.sprite.Sprite):
         self.facing_right = True
 
         self.change_health = change_health
+        self.amount_of_hp = [0, 0, 0]
+        self.last_dmg = 2
         self.invincible = False
         self.invincibility_duration = 750
         self.hurt_time = 0
@@ -120,11 +122,20 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
         self.direction.y = self.jump_speed
 
+    '''def heal(self):
+        self.amount_of_hp[self.last_dmg] -= 1
+        if self.amount_of_hp[self.last_dmg] >= 2 and self.last_dmg <= 2:
+            self.last_dmg += 1'''
+
     def get_damage(self):
         if not self.invincible:
             self.change_health(2)
             self.invincible = True
             self.hurt_time = pygame.time.get_ticks()
+
+            self.amount_of_hp[self.last_dmg] += 2
+            if self.amount_of_hp[self.last_dmg] >= 2:
+                self.last_dmg -= 1
 
     def invincibility_timer(self):
         if self.invincible:

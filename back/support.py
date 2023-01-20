@@ -60,7 +60,6 @@ class Button:
     def draw(self, surface):
         action = False
         key = pygame.key.get_pressed()
-
         if key[pygame.K_SPACE]:
             action = True
 

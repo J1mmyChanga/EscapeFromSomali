@@ -3,13 +3,13 @@ from tiles import StaticTile
 from settings import tile_size, screen_width, screen_height
 from support import import_folder
 
+
 class UI():
     def __init__(self):
         self.font = pygame.font.Font('../front/font/retro-land-mayhem.ttf', 48)
 
         # hp
         self.hearts = pygame.sprite.Group()
-        self.amount_of_hp = [0, 0, 0]
         self.last_dmg = 2
         self.images_of_hp = import_folder('../front/ui/hp')
         self.hp_group = pygame.sprite.Group()
@@ -37,22 +37,12 @@ class UI():
         self.woods = 0
         self.ropes = 0
         self.oars = 0
-        self.cocos = 0
+        self.coconuts = 0
 
-    def take_damage(self):
-        self.amount_of_hp[self.last_dmg] += 1
-        if self.amount_of_hp[self.last_dmg] >= 2:
-            self.last_dmg -= 1
-        if sum(self.hp_group) >= 6:
-            print('ure dead bruh...')
-
-    def heal(self):
-        self.amount_of_hp[self.last_dmg] -= 0.5
-
-    def update_hp(self, surface):
+    def update_hp(self, surface, hp):
         self.hp_group.empty()
         val = tile_size
-        for i in self.amount_of_hp:
+        for i in hp:
             sprite = StaticTile(val, tile_size // 1.5, tile_size, self.images_of_hp[i])
             val += tile_size
             self.hp_group.add(sprite)
@@ -61,16 +51,16 @@ class UI():
     def update_items(self, surface):
         self.items.draw(surface)
 
-        text_wood = self.font.render(f"{self.woods}/3", True, (255, 255, 255))
+        text_wood = self.font.render(f"{self.woods}/3", True, (51, 50, 61))
         x1, y1 = screen_width - 1.75 * tile_size - text_wood.get_rect().width, tile_size // 2 + 5
 
-        text_rope = self.font.render(f"{self.ropes}/1", True, (255, 255, 255))
+        text_rope = self.font.render(f"{self.ropes}/1", True, (51, 50, 61))
         x2, y2 = screen_width - 1.75 * tile_size - text_rope.get_rect().width, tile_size // 2 + 5 + self.def_size
 
-        text_oar = self.font.render(f"{self.oars}/1", True, (255, 255, 255))
+        text_oar = self.font.render(f"{self.oars}/1", True, (51, 50, 61))
         x3, y3 = screen_width - 1.75 * tile_size - text_oar.get_rect().width, tile_size // 2 + 5 + self.def_size * 2
 
-        text_cocos = self.font.render(f" {self.cocos}", True, (255, 255, 255))
+        text_cocos = self.font.render(f" {self.coconuts}", True, (51, 50, 61))
         x4, y4 = 120, 116
 
         surface.blit(text_wood, (x1, y1))
