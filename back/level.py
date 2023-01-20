@@ -1,18 +1,22 @@
 import pygame
 from tiles import *
-from settings import tile_size, screen_width, screen_height
+from settings import screen_height, screen_width
 from player import Player
 from particle import ParticleEffect
 from support import import_csv_layout, import_cut_tiles, Button
 from background import Sky, Clouds, Water
-from ui import UI
+from ui import *
 
 
 class Level:
-    def __init__(self, level_data, surface, change_health):
+    def __init__(self, level_data, surface, change_health, cur_lev, move_to_next_level, woods, ropes, oars, coconuts):
         self.change_health = change_health
         self.level_data = level_data
-        self.reset(level_data, surface)
+        self.cur_lev = cur_lev
+        self.move_to_next_level = move_to_next_level
+        self.woods, self.ropes, self.oars, self.coconuts = woods, ropes, oars, coconuts
+        self.check_if_coc = 0
+        self.reset(level_data, surface, cur_lev)
 
 
     def create_tile_group(self, layout, type):
@@ -152,15 +156,17 @@ class Level:
         if self.player.sprite.rect.top > screen_height:
             self.dead = True
             self.world_shift = 0
+            self.check_if_coc = 1
             if self.restart_button.draw(self.display_surface):
-                self.reset(self.level_data, self.display_surface)
+                self.reset(self.level_data, self.display_surface, self.cur_lev)
+                self.coconuts = 0
 
-    def reset(self, level_data, surface):
+    def reset(self, level_data, surface, cur_lev):
         self.display_surface = surface
         self.coord_tuples = []
         self.world_shift = 0
         self.dead = False
-        self.ui = UI()
+        self.ui = UI(cur_lev)
         self.restart_button = Button((screen_width - 120) // 2, screen_height // 2, '../front/ui/buttons/restart_btn.png')
 
         # частицы
@@ -233,21 +239,25 @@ class Level:
             if pygame.sprite.collide_mask(sprite, self.player.sprite):
                 sprite.kill()
                 if sprite.type == 'coconuts':
-                    self.ui.coconuts += 1
+                    self.coconuts += 1
                 elif sprite.type == 'bananas':
                     #self.player.sprite.heal()
                     pass
 
     def check_key_items_collision(self):
+        global woods, ropes, oars
         for sprite in self.key_item_sprite:
             if pygame.sprite.collide_mask(sprite, self.player.sprite):
                 sprite.kill()
                 if sprite.type == 'wood':
-                    self.ui.woods += 1
+                    self.woods += 1
+                    self.move_to_next_level(self.woods, self.ropes, self.oars, self.coconuts)
                 elif sprite.type == 'rope':
-                    self.ui.rope += 1
+                    self.ropes += 1
+                    self.move_to_next_level(self.woods, self.ropes, self.oars, self.coconuts)
                 elif sprite.type == 'oar':
-                    self.ui.oar += 1
+                    self.oars += 1
+                    self.move_to_next_level(self.woods, self.ropes, self.oars, self.coconuts)
 
     def check_enemy_collisions(self):
         enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemies_sprites, False)
@@ -342,4 +352,4 @@ class Level:
 
         # ui
         self.ui.update_hp(self.display_surface, self.player.sprite.amount_of_hp)
-        self.ui.update_items(self.display_surface)
+        self.ui.update_items(self.display_surface, self.woods, self.ropes, self.oars, self.coconuts)
