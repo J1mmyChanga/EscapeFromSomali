@@ -35,7 +35,7 @@ pygame.display.set_caption('Escape from Somali')
 pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
 game = Game()
-game.create_level(level_5)
+game.create_level(level_2)
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

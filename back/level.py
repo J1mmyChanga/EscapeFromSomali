@@ -1,5 +1,4 @@
 import pygame
-from all_levels import level_1
 from tiles import *
 from settings import tile_size, screen_width, screen_height
 from player import Player
@@ -233,6 +232,21 @@ class Level:
         for sprite in self.consumables_sprites:
             if pygame.sprite.collide_mask(sprite, self.player.sprite):
                 sprite.kill()
+                if sprite.type == 'coconuts':
+                    self.ui.cocos += 1
+                elif sprite.type == 'bananas':
+                    pass
+
+    def check_key_items_collision(self):
+        for sprite in self.key_item_sprite:
+            if pygame.sprite.collide_mask(sprite, self.player.sprite):
+                sprite.kill()
+                if sprite.type == 'wood':
+                    self.ui.woods += 1
+                elif sprite.type == 'rope':
+                    self.ui.rope += 1
+                elif sprite.type == 'oar':
+                    self.ui.oar += 1
 
     def check_enemy_collisions(self):
         enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemies_sprites, False)
@@ -326,5 +340,5 @@ class Level:
         self.dust_sprite.draw(self.display_surface)
 
         # ui
-        self.hp.update_hp(self.display_surface)
-        self.hp.update_items(self.display_surface)
+        self.ui.update_hp(self.display_surface)
+        self.ui.update_items(self.display_surface)
