@@ -48,3 +48,22 @@ def import_cut_tiles(path):
             new_surf.blit(surface, (0, 0), pygame.Rect(x, y, tile_size, tile_size))
             cut_tiles.append(new_surf)
     return cut_tiles
+
+
+class Button:
+    def __init__(self, x, y, path):
+        self.image = load_image(path)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def draw(self, surface):
+        action = False
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_SPACE]:
+            action = True
+
+        surface.blit(self.image, self.rect)
+
+        return action
