@@ -235,8 +235,7 @@ class Level:
                 if sprite.type == 'coconuts':
                     self.ui.coconuts += 1
                 elif sprite.type == 'bananas':
-                    #self.player.sprite.heal()
-                    pass
+                    self.player.sprite.heal()
 
     def check_key_items_collision(self):
         for sprite in self.key_item_sprite:
@@ -247,7 +246,7 @@ class Level:
                 elif sprite.type == 'rope':
                     self.ui.rope += 1
                 elif sprite.type == 'oar':
-                    self.ui.oar += 1
+                    self.ui.oars += 1
 
     def check_enemy_collisions(self):
         enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemies_sprites, False)
